@@ -41,3 +41,24 @@ exports.myCourses = async (req, res) => {
   }
   res.json(courses);
 };
+exports.deleteCourse = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    // Optional: Only the teacher who created the course can delete it
+    if (course.teacher.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized to delete this course" });
+    }
+
+    await course.deleteOne();
+    res.json({ message: "Course deleted" });
+
+  } catch (err) {
+    console.error("❌ Error deleting course:", err);
+    res.status(500).json({ error: "Failed to delete course", details: err.message });
+  }
+};
