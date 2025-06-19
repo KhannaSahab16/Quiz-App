@@ -5,6 +5,7 @@ const connectDB = require("./config/db");
 const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require("./routes/courseRoutes");
 const quizRoutes = require('./routes/quizRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 
 
@@ -17,6 +18,7 @@ app.use(express.json());
 
 app.use("/api/courses", courseRoutes);
 app.use("/api/quizzes", quizRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/auth", require("./routes/authRoutes"));
 
 app.get("/", (req, res) => res.send("🎓 Quiz App API running"));
