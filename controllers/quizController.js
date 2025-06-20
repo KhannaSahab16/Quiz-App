@@ -51,7 +51,6 @@ exports.getAllQuizzes = async (req, res) => {
       return res.json(safeQuizzes);
     }
 
-    // Teachers/admins see full quizzes
     const filter = req.query.course ? { course: req.query.course } : {};
     const quizzes = await Quiz.find(filter).populate("course", "title");
     res.json(quizzes);
@@ -67,14 +66,13 @@ exports.getQuizById = async (req, res) => {
 
     if (!quiz) return res.status(404).json({ error: "Quiz not found" });
 
-    // 🛡️ Restrict access if student is not enrolled
+    
     if (req.user.role === "student") {
       const course = await Course.findById(quiz.course._id);
       if (!course.students.includes(req.user.id)) {
         return res.status(403).json({ error: "Not enrolled in this course" });
       }
 
-      // ✂️ Remove correctAnswer from each question
       const safeQuiz = {
         ...quiz.toObject(),
         questions: quiz.questions.map(({ question, options }) => ({
@@ -92,11 +90,11 @@ exports.getQuizById = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch quiz" });
   }
 };
-// controllers/quizController.js
+
 exports.submitQuiz = async (req, res) => {
   try {
     const { answers } = req.body;
-    const quizId = req.params.quizId; // ✅ Get quizId from URL
+    const quizId = req.params.quizId; 
 
     const quiz = await Quiz.findById(quizId);
     if (!quiz) return res.status(404).json({ error: "Quiz not found" });
@@ -105,7 +103,7 @@ exports.submitQuiz = async (req, res) => {
 if (existingAttempt) {
   return res.status(400).json({ error: "You've already attempted this quiz" });
 }
-const quizStartTime = new Date(req.body.startedAt); // frontend sends this
+const quizStartTime = new Date(req.body.startedAt); 
 const now = new Date();
 const minutesTaken = (now - quizStartTime) / (1000 * 60);
 
@@ -156,7 +154,7 @@ if (percentage >= 70) {
     res.status(500).json({ error: "Failed to submit quiz" });
   }
 };
-// controllers/quizController.js
+
 exports.getLeaderboard = async (req, res) => {
   try {
     const quizId = req.params.quizId;
@@ -239,7 +237,7 @@ exports.getQuizAttemptsByTeacher = async (req, res) => {
     const quiz = await Quiz.findById(quizId);
     if (!quiz) return res.status(404).json({ error: "Quiz not found" });
 
-    // 🛡️ Only allow quiz creator to view attempts
+    
     if (quiz.createdBy.toString() !== req.user.id) {
       return res.status(403).json({ error: "Not authorized to view attempts" });
     }
@@ -289,7 +287,7 @@ exports.toggleQuizPublish = async (req, res) => {
     const quiz = await Quiz.findById(req.params.id).populate("course");
     if (!quiz) return res.status(404).json({ error: "Quiz not found" });
 
-    // ✅ Only the course teacher can toggle it
+    
     if (!quiz.course || quiz.course.teacher.toString() !== req.user.id) {
       return res.status(403).json({ error: "Not authorized" });
     }

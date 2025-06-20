@@ -33,7 +33,7 @@ exports.viewStudentDashboard = async (req, res) => {
   try {
     const studentId = req.params.id;
 
-    // 🔒 Verify that the user exists and is a student
+    
     const studentUser = await User.findById(studentId);
     if (!studentUser || studentUser.role !== "student") {
       return res.status(404).json({ error: "Student not found" });

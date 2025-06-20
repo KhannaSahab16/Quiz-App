@@ -1,4 +1,4 @@
-// controllers/courseController.js
+
 const Course = require("../models/Course");
 
 exports.createCourse = async (req, res) => {
@@ -49,7 +49,7 @@ exports.deleteCourse = async (req, res) => {
       return res.status(404).json({ error: "Course not found" });
     }
 
-    // Optional: Only the teacher who created the course can delete it
+    
     if (course.teacher.toString() !== req.user.id) {
       return res.status(403).json({ error: "Not authorized to delete this course" });
     }
