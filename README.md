@@ -32,6 +32,7 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
   * Take quiz **once** (attempt restriction)
   * Receive immediate scoring
   * Recieve Certificate if passed threshold criteria
+  * Receive feedback for each answer (correct/wrong).
 
 ### 🏆 Leaderboards
 
@@ -43,14 +44,14 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 * ✅ View enrolled courses
 * ✅ View available quizzes
 * ✅ View attempt score history
-* ✅ View per-quiz attempt feedback
+* ✅ View per-quiz detailed per-question feedback
 
 ### 📈 Teacher Dashboard
 
 * ✅ View all created courses
 * ✅ View quizzes with stats (students, attempts)
 * ✅ Access any student’s dashboard via dropdown
-* ✅ Monitor class performance
+* ✅ Teachers can monitor individual student entire performance history.
 
 ---
 
@@ -95,7 +96,7 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 | Database   | MongoDB + Mongoose ORM       |
 | Auth       | JWT Tokens                   |
 | Role Guard | Middleware based restriction |
-| Testing    | Postman     |
+| Testing    | Postman                      |
 
 ---
 
@@ -127,6 +128,7 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 | GET    | /api/leaderboard/global           | Global leaderboard              |
 | GET    | /api/dashboard/student            | Student’s own dashboard         |
 | GET    | /api/dashboard/\:id/student       | Teacher views any student       |
+| GET    |  /api/quizzes/:id/certificate     | Receive Certificate             |
 
 ---
 
@@ -165,8 +167,6 @@ npm run dev
 ## 👥  Author
 
 Built by **Mehul Khanna**
-
-💪 Personal backend internship project + hackathon submission-ready.
 
 Crafted with ❤️, caffeine, and hundreds of test requests.
 
