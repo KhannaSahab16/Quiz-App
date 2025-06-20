@@ -1,6 +1,8 @@
 const Course = require("../models/Course");
 const Quiz = require("../models/Quiz");
 const QuizAttempt = require("../models/QuizAttempt");
+const User = require("../models/User");
+
 
 exports.studentDashboard = async (req, res) => {
   try {
@@ -89,5 +91,30 @@ exports.teacherDashboard = async (req, res) => {
   } catch (err) {
     console.error("❌ Teacher Dashboard Error:", err);
     res.status(500).json({ error: "Failed to load teacher dashboard" });
+  }
+};
+
+exports.getStudentAnalytics = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const attempts = await QuizAttempt.find({ user: userId }).populate("quiz", "title");
+    res.json({ attempts });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch analytics" });
+  }
+};
+
+exports.getStudentAnalyticsById = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await User.findById(userId);
+    if (!user || user.role !== "student") {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    const attempts = await QuizAttempt.find({ user: userId }).populate("quiz", "title");
+    res.json({ attempts });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch student analytics" });
   }
 };

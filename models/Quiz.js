@@ -10,6 +10,8 @@ const quizSchema = new mongoose.Schema({
   title: { type: String, required: true },
   course: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
   questions: [questionSchema],
+  duration: { type: Number },
+  isPublished: { type: Boolean, default: false },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 }, { timestamps: true });
 
