@@ -1,4 +1,4 @@
-# 🧠 Quiz App Backend – MERN Education Platform (API-Only)
+# 🧠 MERN Education Platform Backend (API-Only)
 
 Robust Node.js backend for a full-fledged education + quiz platform with **JWT Auth**, **role-based dashboards**, **course management**, **quiz creation**, **scoring**, **leaderboards**, and **student performance tracking**.
 
@@ -31,6 +31,7 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
   * View only enrolled course quizzes
   * Take quiz **once** (attempt restriction)
   * Receive immediate scoring
+  * Recieve Certificate if passed threshold criteria
 
 ### 🏆 Leaderboards
 
@@ -70,6 +71,7 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 │   ├── Course.js
 │   ├── Quiz.js
 │   └── QuizAttempt.js
+│   └── Certificate.js
 ├── routes/
 │   ├── authRoutes.js
 │   ├── courseRoutes.js
@@ -78,6 +80,8 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 ├── server.js
 └── config/
     └── db.js
+└── utils/
+    └── tokenUtils.js
 ```
 
 ---
@@ -91,7 +95,7 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 | Database   | MongoDB + Mongoose ORM       |
 | Auth       | JWT Tokens                   |
 | Role Guard | Middleware based restriction |
-| Testing    | Postman / Thunder Client     |
+| Testing    | Postman     |
 
 ---
 
@@ -153,7 +157,6 @@ npm run dev
 * ✅ **Quiz feedback (per question)**
 * ✅ **Global leaderboard**
 * 🔜 **Email report to student after attempt**
-* 🔜 **Certificate generation (PDF)**
 * 🔜 **Auto-expiring quizzes**
 * 🔜 **Tag-based quiz filters**
 
@@ -162,7 +165,9 @@ npm run dev
 ## 👥  Author
 
 Built by **Mehul Khanna**
+
 💪 Personal backend internship project + hackathon submission-ready.
+
 Crafted with ❤️, caffeine, and hundreds of test requests.
 
 ---
