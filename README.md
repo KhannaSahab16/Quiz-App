@@ -26,13 +26,16 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
   * Add any number of questions
   * Associate them with existing courses
   * Control visibility (draft / publish)
+  * Set quiz start & end time ⏳
 * 🔍 Students can:
 
   * View only enrolled course quizzes
   * Take quiz **once** (attempt restriction)
   * Receive immediate scoring
-  * Recieve Certificate if passed threshold criteria
-  * Receive feedback for each answer (correct/wrong).
+  * Receive certificate if passed threshold criteria 🎓
+  * Receive feedback for each answer (correct/wrong)
+  * Receive email report after quiz attempt 📧
+  * Blocked from accessing quiz outside time window
 
 ### 🏆 Leaderboards
 
@@ -51,7 +54,7 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 * ✅ View all created courses
 * ✅ View quizzes with stats (students, attempts)
 * ✅ Access any student’s dashboard via dropdown
-* ✅ Teachers can monitor individual student entire performance history.
+* ✅ Teachers can monitor individual student entire performance history
 
 ---
 
@@ -60,29 +63,30 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 ```
 📦 Quiz-App-Backend
 ├── controllers/
-│   ├── authController.js
-│   ├── courseController.js
-│   ├── quizController.js
-│   └── dashboardController.js
+│ ├── authController.js
+│ ├── courseController.js
+│ ├── quizController.js
+│ └── dashboardController.js
 ├── middleware/
-│   ├── authMiddleware.js
-│   └── roleMiddleware.js
+│ ├── authMiddleware.js
+│ └── roleMiddleware.js
 ├── models/
-│   ├── User.js
-│   ├── Course.js
-│   ├── Quiz.js
-│   └── QuizAttempt.js
-│   └── Certificate.js
+│ ├── User.js
+│ ├── Course.js
+│ ├── Quiz.js
+│ ├── QuizAttempt.js
+│ └── Certificate.js
 ├── routes/
-│   ├── authRoutes.js
-│   ├── courseRoutes.js
-│   ├── quizRoutes.js
-│   └── dashboardRoutes.js
+│ ├── authRoutes.js
+│ ├── courseRoutes.js
+│ ├── quizRoutes.js
+│ └── dashboardRoutes.js
 ├── server.js
-└── config/
-    └── db.js
+├── config/
+│ └── db.js
 └── utils/
-    └── tokenUtils.js
+├── tokenUtils.js
+└── emailSender.js
 ```
 
 ---
@@ -96,6 +100,7 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 | Database   | MongoDB + Mongoose ORM       |
 | Auth       | JWT Tokens                   |
 | Role Guard | Middleware based restriction |
+| Email      | Nodemailer (Gmail SMTP)      |
 | Testing    | Postman                      |
 
 ---
@@ -114,21 +119,21 @@ Robust Node.js backend for a full-fledged education + quiz platform with **JWT A
 
 ## 🔄 API Overview
 
-| Method | Route                             | Description                     |
-| ------ | --------------------------------- | ------------------------------- |
-| POST   | /api/auth/register                | Register as student/teacher     |
-| POST   | /api/auth/login                   | Login, returns JWT              |
-| POST   | /api/courses/\:id/enroll          | Student enrolls in course       |
-| GET    | /api/courses                      | View all courses (by role)      |
-| POST   | /api/quizzes                      | Create a quiz (teacher)         |
-| GET    | /api/quizzes                      | Get available quizzes (by role) |
-| GET    | /api/quizzes/\:id                 | Get specific quiz               |
-| POST   | /api/quizzes/\:quizId/attempt     | Submit a quiz                   |
-| GET    | /api/quizzes/\:quizId/leaderboard | Quiz leaderboard                |
-| GET    | /api/leaderboard/global           | Global leaderboard              |
-| GET    | /api/dashboard/student            | Student’s own dashboard         |
-| GET    | /api/dashboard/\:id/student       | Teacher views any student       |
-| GET    |  /api/quizzes/:id/certificate     | Receive Certificate             |
+| Method | Route                             | Description                            |
+|--------|-----------------------------------|----------------------------------------|
+| POST   | /api/auth/register                | Register as student/teacher            |
+| POST   | /api/auth/login                   | Login, returns JWT                     |
+| POST   | /api/courses/:id/enroll           | Student enrolls in course              |
+| GET    | /api/courses                      | View all courses (by role)             |
+| POST   | /api/quizzes                      | Create a quiz (teacher)                |
+| GET    | /api/quizzes                      | Get available quizzes (by role)        |
+| GET    | /api/quizzes/:id                  | Get specific quiz                      |
+| POST   | /api/quizzes/:quizId/attempt      | Submit a quiz                          |
+| GET    | /api/quizzes/:quizId/leaderboard  | Quiz leaderboard                       |
+| GET    | /api/leaderboard/global           | Global leaderboard                     |
+| GET    | /api/dashboard/student            | Student’s own dashboard                |
+| GET    | /api/dashboard/:id/student        | Teacher views any student              |
+| GET    | /api/quizzes/:id/certificate      | Receive Certificate if eligible        |
 
 ---
 
@@ -146,9 +151,11 @@ npm run dev
    * Register/login as both roles
    * Create course (teacher)
    * Enroll (student)
-   * Create quiz
-   * Attempt quiz (once!)
+   * Create quiz (set startTime, endTime, and duration)
+   * Attempt quiz (respect time window!)
    * Check leaderboard & dashboard routes
+   * Confirm email is received after attempt
+   * Confirm cert is generated if passed
 
 ---
 
@@ -158,9 +165,10 @@ npm run dev
 * ✅ **One attempt per student**
 * ✅ **Quiz feedback (per question)**
 * ✅ **Global leaderboard**
-* 🔜 **Email report to student after attempt**
-* 🔜 **Auto-expiring quizzes**
+* ✅ **Email report to student after attempt**
+* ✅ **Timed/expiring quizzes ⏳**
 * 🔜 **Tag-based quiz filters**
+* 🔜 **Certificate verification link**
 
 ---
 
