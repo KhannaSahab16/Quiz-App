@@ -13,6 +13,14 @@ const quizSchema = new mongoose.Schema({
   duration: { type: Number },
   isPublished: { type: Boolean, default: false },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  startTime: {
+  type: Date,
+  default: null
+},
+endTime: {
+  type: Date,
+  default: null
+}
 }, { timestamps: true });
 
 

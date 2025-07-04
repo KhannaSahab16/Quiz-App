@@ -3,6 +3,7 @@ const QuizAttempt = require("../models/QuizAttempt");
 const User = require("../models/User");
 const Course = require("../models/Course");
 const Certificate = require("../models/Certificate");
+const sendQuizReportEmail = require('../utils/emailSender');
 
 exports.createQuiz = async (req, res) => {
   try {
@@ -72,7 +73,13 @@ exports.getQuizById = async (req, res) => {
       if (!course.students.includes(req.user.id)) {
         return res.status(403).json({ error: "Not enrolled in this course" });
       }
-
+      const now = new Date();
+  if (quiz.startTime && now < quiz.startTime) {
+    return res.status(403).json({ error: "Quiz has not started yet" });
+  }
+  if (quiz.endTime && now > quiz.endTime) {
+    return res.status(403).json({ error: "Quiz has expired" });
+  }
       const safeQuiz = {
         ...quiz.toObject(),
         questions: quiz.questions.map(({ question, options }) => ({
@@ -93,27 +100,37 @@ exports.getQuizById = async (req, res) => {
 
 exports.submitQuiz = async (req, res) => {
   try {
-    const { answers } = req.body;
-    const quizId = req.params.quizId; 
+    const { answers, startedAt } = req.body;
+    const quizId = req.params.quizId;
 
     const quiz = await Quiz.findById(quizId);
     if (!quiz) return res.status(404).json({ error: "Quiz not found" });
 
-    const existingAttempt = await QuizAttempt.findOne({ quiz: quizId, user: req.user.id });
-if (existingAttempt) {
-  return res.status(400).json({ error: "You've already attempted this quiz" });
-}
-const quizStartTime = new Date(req.body.startedAt); 
-const now = new Date();
-const minutesTaken = (now - quizStartTime) / (1000 * 60);
+    //  BLOCK if quiz is outside active time window
+    const now = new Date();
+    if (quiz.startTime && now < quiz.startTime) {
+      return res.status(403).json({ error: "Quiz has not started yet." });
+    }
+    if (quiz.endTime && now > quiz.endTime) {
+      return res.status(403).json({ error: "Quiz has expired." });
+    }
 
-if (quiz.duration && minutesTaken > quiz.duration) {
-  return res.status(400).json({ error: "Quiz time limit exceeded" });
-}
+    const existingAttempt = await QuizAttempt.findOne({ quiz: quizId, user: req.user.id });
+    if (existingAttempt) {
+      return res.status(400).json({ error: "You've already attempted this quiz" });
+    }
+
+    const quizStartTime = new Date(startedAt);
+    const minutesTaken = (now - quizStartTime) / (1000 * 60);
+
+    if (quiz.duration && minutesTaken > quiz.duration) {
+      return res.status(400).json({ error: "Quiz time limit exceeded" });
+    }
 
     let score = 0;
     const feedback = [];
-   quiz.questions.forEach((q, idx) => {
+
+    quiz.questions.forEach((q, idx) => {
       const isCorrect = q.correctAnswer === answers[idx];
       if (isCorrect) score++;
 
@@ -125,35 +142,61 @@ if (quiz.duration && minutesTaken > quiz.duration) {
       });
     });
 
-   const attempt = await QuizAttempt.create({
+    const attempt = await QuizAttempt.create({
       quiz: quizId,
       user: req.user.id,
       answers,
       score
     });
-    const percentage = (score / quiz.questions.length) * 100;
-if (percentage >= 70) {
-  await Certificate.create({
-    quiz: quizId,
-    course: quiz.course,
-    student: req.user.id,
-    score
-  });
-}
 
+    // Calculate percentage
+    const percentage = (score / quiz.questions.length) * 100;
+
+    let certLink = null;
+    if (percentage >= 70) {
+      const cert = await Certificate.create({
+        quiz: quizId,
+        course: quiz.course,
+        student: req.user.id,
+        score
+      });
+      certLink = `https://yourdomain.com/api/certificates/${cert._id}`;
+    }
+
+    // Email Report
+    const user = await User.findById(req.user.id);
+    const emailHtml = `
+      <h2>Hi ${user.name},</h2>
+      <p>You recently attempted the quiz: <strong>${quiz.title}</strong></p>
+      <ul>
+        <li>Score: <strong>${score} / ${quiz.questions.length}</strong></li>
+        <li>Status: ${percentage >= 70 ? '✅ <b>Passed</b>' : '❌ <b>Failed</b>'}</li>
+        ${certLink ? `<li><a href="${certLink}">🎓 View Certificate</a></li>` : ''}
+      </ul>
+      <hr/>
+      <p>Thanks for learning with us at EduQuiz! 🚀</p>
+    `;
+
+    await sendQuizReportEmail(
+      user.email,
+      `📚 Your result for "${quiz.title}"`,
+      emailHtml
+    );
+
+    //  Send Final Response
     res.json({
-      message: "Quiz submitted",
+      message: "Quiz submitted successfully",
       score,
       feedback,
       attempt
     });
-
 
   } catch (err) {
     console.error("❌ Error submitting quiz:", err);
     res.status(500).json({ error: "Failed to submit quiz" });
   }
 };
+
 
 exports.getLeaderboard = async (req, res) => {
   try {
